@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from .. import schemas, database, models
-from ..controllers import blog
+from blog import schemas, database, oaut2
+from blog.controllers import blog
+
 
 
 router = APIRouter(
@@ -13,7 +14,7 @@ router = APIRouter(
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.ShowBlog)
-def create(request: schemas.Blog, db: Session = Depends(database.get_db)):
+def create(request: schemas.Blog, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(oaut2.get_current_user)):
 	return blog.create(request, db)
 
 
@@ -28,10 +29,10 @@ def single(id: int, db: Session = Depends(database.get_db)):
 
 
 @router.put('/{id}', status_code=status.HTTP_202_ACCEPTED)
-def update(id: int, request: schemas.Blog, db: Session =Depends((database.get_db))):
+def update(id: int, request: schemas.Blog, db: Session =Depends((database.get_db)), current_user: schemas.User = Depends(oaut2.get_current_user)):
 	return blog.update(id, request, db)
 
 
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
-def destroy(id: int, db: Session = Depends(database.get_db)):
+def destroy(id: int, db: Session = Depends(database.get_db), current_user: schemas.User = Depends(oaut2.get_current_user)):
 	return blog.destroy(id, db)

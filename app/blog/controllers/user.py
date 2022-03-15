@@ -2,8 +2,8 @@ from fastapi import status, HTTPException
 from sqlalchemy.orm import Session
 
 
-from .. import schemas, models
-from ..hashing import Hash
+from blog import schemas, models
+from blog.hashing import Hash
 
 def create(request: schemas.User, db: Session):
 	new_user = models.User(name=request.name, email=request.email, password=Hash.bcrypt(request.password))
