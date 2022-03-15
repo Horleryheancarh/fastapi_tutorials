@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from typing import List
-
+from typing import List, Optional
 
 
 class BlogBase(BaseModel):
@@ -19,6 +18,7 @@ class Blog(BlogBase):
 	class Config():
 		orm_mode = True
 
+
 # Response Schema
 class ShowUser(User):
 	name: str
@@ -28,6 +28,7 @@ class ShowUser(User):
 	class Config():
 		orm_mode = True
 
+
 class ShowBlog(Blog):
 	title: str
 	body: str
@@ -35,4 +36,19 @@ class ShowBlog(Blog):
 
 	class Config():
 		orm_mode = True
+
+
+class Login(BaseModel):
+	username: str
+	password: str
+
+
+class Token(BaseModel):
+	access_token: str
+	token_type: str
+
+
+class TokenData(BaseModel):
+	username: Optional[str] = None
+
 

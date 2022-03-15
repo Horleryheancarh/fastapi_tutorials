@@ -3,47 +3,30 @@ from sqlalchemy.orm import Session
 
 from .. import database, schemas, models
 from ..hashing import Hash
+from ..controllers import user
 
 
-router = APIRouter()
+router = APIRouter(
+	prefix="/user",
+	tags=['user']
+	)
 
-@router.post('/user', response_model=schemas.ShowUser, tags=['user'])
+@router.post('/', response_model=schemas.ShowUser)
 def create_user(request: schemas.User, db: Session = Depends(database.get_db)):
-
-	new_user = models.User(name=request.name, email=request.email, password=Hash.bcrypt(request.password))
-	db.add(new_user)
-	db.commit()
-	db.refresh(new_user)
-
-	return new_user
+	return user.create(request, db)
 
 
-@router.get('/user/{id}', response_model=schemas.ShowUser, tags=['user'])
+@router.get('/{id}', response_model=schemas.ShowUser)
 def get_user(id: int, db: Session = Depends(database.get_db)):
-	user = db.query(models.User).filter(models.User.id == id).first()
-
-	if not user:
-		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with the id {id} is not available")
-	
-	return user
+	return user.get(id, db)
 
 
-@router.get('/user', tags=['user'])
+@router.get('/')
 def all_users(db: Session = Depends(database.get_db)):
-	users = db.query(models.User).all()
-
-	return users
+	return user.get_all(db)
 
 
-@router.put('/user/{id}', tags=['user'])
+@router.put('/{id}')
 def update_user(id: int, request: schemas.User, db: Session = Depends(database.get_db)):
-	user = db.query(models.User).filter(models.User.id == id)
-
-	if not user.first():
-		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with the id {id} is not available")
-	
-	user.update(request)
-	db.commit()
-
-	return {'updated'}
+	return user.update(id, request, db)
 
